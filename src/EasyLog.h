@@ -113,6 +113,9 @@ namespace EasyLog
 	// utils
 	std::string GetLogTime();
 
+	//
+	const std::string c_LogLevelTag[] = {"DEBUG","INFO","WARN","ERROR","FATAL"};
+
 }// end namespace Log
 
 #define LOG_CMD(log,event,level) \
@@ -122,7 +125,7 @@ namespace EasyLog
 			for(EasyLog::AppenderList::iterator it = log.GetAppenderList().begin(); it != log.GetAppenderList().end(); ++it)\
 			{\
 				std::stringstream ssTemp;\
-				ssTemp << EasyLog::GetLogTime() << " - " << event <<\
+				ssTemp << EasyLog::GetLogTime() << " - " << EasyLog::c_LogLevelTag[level] << " - " << event <<\
 					" [ " <<  __FILE__ << " : " << __LINE__ << " ]" << "\n";\
 				(*it)->Open();\
 				(*it)->Write(ssTemp.str());\
