@@ -14,8 +14,12 @@
 namespace EasyLog
 {
 	class Appender;
+	class FileManager;
 
 	// data types
+	typedef boost::shared_ptr<FileManager> FileManagerPtr; 
+// 	typedef boost::shared_ptr<FileAppender> FileAppenderPtr;
+// 	typedef boost::shared_ptr<QueuedFileAppender> QueuedFileAppenderPtr;
 	typedef boost::shared_ptr<Appender> AppenderPtr;
 	typedef std::vector<AppenderPtr> AppenderList;
 	typedef boost::mutex LogMutex;
@@ -54,23 +58,52 @@ namespace EasyLog
 		Appender(){}
 		virtual ~Appender(){};
 		virtual void Write(const std::string& msg) = 0;
-		virtual void Open(){}
-		virtual void Close(){}
+//		virtual void Open(){}
+//		virtual void Close(){}
+
+	private:
 	};
-	// file appender
-	class FileAppender : public Appender
+	
+	class FileManager
 	{
 	public:
-		FileAppender(const std::string& sFileName);
+		FileManager();
+		bool SetDir(const std::string& sDir);
+		const std::string& GetDir() const { return m_sDir; }
+		void SetPrefixName(const std::string& sPrefixName) { m_sPrefixName = sPrefixName; }
+		const std::string& GetPrefixName() const { return m_sPrefixName; }
+		void SetMaxFileLife(int nDays){ m_nMaxFileLife = nDays; }
+		void SetCompress(bool bCompress) { m_bCompress = bCompress; }
+
+		std::string SynthesizeTodyFileName(); // for current date, with path
+		void ArrangeFiles(); // clean and compress, if it is set
+	private:
+		std::string SynthesizeTodyFileStem(); // for current date, without path
+		std::string SynthesizeEarlistFileStem();  // for the earlist file, without path
+		void ListLogFileStem(std::vector<std::string> &vsLogFiles, std::vector<std::string> &vsZipFiles);
+		std::string GetDateString(time_t tt);
+		std::string FullPath(const std::string& sName);
+		void Compress(const std::string &sStemName);
+		void RemoveCompressedFile(const std::string &sStemName);
+		std::string m_sDir;
+		std::string m_sPrefixName;
+		int m_nMaxFileLife; // exist days
+		bool m_bCompress;
+	};
+
+	// file appender
+	class FileAppender : public Appender, public FileManager
+	{
+	public:
+		FileAppender();
 		~FileAppender();
 		virtual void Write(const std::string& msg);
-		void SetMaxFileSize(long size);
+	protected:
 		void Open();
 		void Close();
+		void WriteWithoutFlush(const std::string& msg);
 	private:
 		std::ofstream m_filestream;
-		std::string m_sFileName;
-		long m_MaxFileSize;
 	};
 	// console appender
 	class ConsoleAppender : public Appender
@@ -94,15 +127,14 @@ namespace EasyLog
 	};
 
 	// queued appender, faster than file appender
-	class QueuedFileAppender : public Appender
+	class QueuedFileAppender : public FileAppender
 	{
 	public:
-		QueuedFileAppender(const std::string& sFileName);
+		QueuedFileAppender();
 		~QueuedFileAppender();
 		virtual void Write(const std::string& msg);
 	private:
 		SafeQueue m_Queue;
-		FileAppender m_FileAppender;
 		bool m_bRun;
 		boost::shared_ptr<boost::thread> m_ThreadPtr;
 
@@ -127,9 +159,7 @@ namespace EasyLog
 				std::stringstream ssTemp;\
 				ssTemp << EasyLog::GetLogTime() << " - " << EasyLog::c_LogLevelTag[level] << " - " << event <<\
 					" [ " <<  __FILE__ << " : " << __LINE__ << " ]" << "\n";\
-				(*it)->Open();\
 				(*it)->Write(ssTemp.str());\
-				(*it)->Close();\
 			}\
 	}
 

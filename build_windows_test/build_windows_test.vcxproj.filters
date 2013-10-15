@@ -21,9 +21,15 @@
     <ClCompile Include="..\src\EasyLog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\zip.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\EasyLog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\zip.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
