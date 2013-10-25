@@ -37,7 +37,11 @@ namespace EasyLog
 	class Log
 	{
 	public:
-		Log();
+		static Log& Instance()
+		{
+			static Log aLog;
+			return aLog;
+		}
 		~Log();
 		void AddAppender(AppenderPtr appender);
 		AppenderList& GetAppenderList();
@@ -46,6 +50,7 @@ namespace EasyLog
 		LogMutex& GetMutex();
 
 	private:
+		Log();
 		AppenderList m_Appenders;
 		LOG_LEVEL m_LogLevel;
 		LogMutex m_Mutex;
@@ -165,10 +170,10 @@ namespace EasyLog
 
 // log macros, it is recommended that you use these macors to write a log message in your code instead of the member functions 
 // event is a stream expression which uses the "<<" operator to link all type of variables £¬for example: LOG_FATAL(log, "Welcome to log," << date << "\n")
-#define LOG_FATAL(log,event) LOG_CMD(log,event,EasyLog::LOG_LEVEL_FATAL) 
-#define LOG_ERROR(log,event) LOG_CMD(log,event,EasyLog::LOG_LEVEL_ERROR)
-#define LOG_WARN(log,event) LOG_CMD(log,event,EasyLog::LOG_LEVEL_WARN)
-#define LOG_INFO(log,event) LOG_CMD(log,event,EasyLog::LOG_LEVEL_INFO)
-#define LOG_DEBUG(log,event) LOG_CMD(log,event,EasyLog::LOG_LEVEL_DEBUG)
+#define LOG_FATAL(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_FATAL) 
+#define LOG_ERROR(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_ERROR)
+#define LOG_WARN(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_WARN)
+#define LOG_INFO(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_INFO)
+#define LOG_DEBUG(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_DEBUG)
 
 #endif

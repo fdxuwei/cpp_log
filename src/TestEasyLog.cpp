@@ -7,7 +7,7 @@ using namespace EasyLog;
 int main()
 {
 	time_t tStart = time(NULL);
-	Log aLog;
+	
 	FileAppender *fa = new FileAppender();
 	fa->SetMaxFileLife(2);
 	fa->SetCompress(true);
@@ -18,7 +18,7 @@ int main()
 #endif
 	
 	fa->SetPrefixName("test");
-	aLog.AddAppender(AppenderPtr(fa));
+	Log::Instance().AddAppender(AppenderPtr(fa));
 
 	QueuedFileAppender *qfa = new QueuedFileAppender();
 	qfa->SetMaxFileLife(2);
@@ -29,17 +29,17 @@ int main()
 	qfa->SetDir("queue_log");
 #endif
 	qfa->SetPrefixName("test");
-	aLog.AddAppender(AppenderPtr(qfa));
+	Log::Instance().AddAppender(AppenderPtr(qfa));
 
 //	aLog.AddAppender(AppenderPtr(new ConsoleAppender()));
-	aLog.SetLogLevel(LOG_LEVEL_ALL);
+	Log::Instance().SetLogLevel(LOG_LEVEL_ALL);
 	for(int i = 0; i < 100; i++)
 	{
-		LOG_DEBUG(aLog, "This a tst for log debug");
-		LOG_INFO(aLog, "This a test for log info");
-		LOG_WARN(aLog, "This a test for log warn");
-		LOG_ERROR(aLog, "This a test for log error");
-		LOG_FATAL(aLog, "This a test for log fatal");
+		LOG_DEBUG("This a tst for log debug");
+		LOG_INFO("This a test for log info");
+		LOG_WARN("This a test for log warn");
+		LOG_ERROR("This a test for log error");
+		LOG_FATAL("This a test for log fatal");
 	}
 
 	cout << "cost:" << time(NULL) - tStart << endl;
