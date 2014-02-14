@@ -4,7 +4,7 @@
 #include <fstream>
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include "EasyLog.h"
+#include "CppLog.h"
 
 #ifdef WIN32
 	#include "zip.h"
@@ -16,7 +16,7 @@
 using namespace std;
 using namespace boost::filesystem;
 
-namespace EasyLog
+namespace CppLog
 {
 	// member functions for Log
 	Log::Log()
@@ -59,6 +59,11 @@ namespace EasyLog
 	void ConsoleAppender::Write(const std::string& msg)
 	{
 		cout << msg;
+	}
+
+	ConsoleAppenderPtr ConsoleAppender::Create()
+	{
+		return ConsoleAppenderPtr(new ConsoleAppender());
 	}
 
 	// member functions for FileAppender
@@ -107,6 +112,11 @@ namespace EasyLog
 		m_filestream << msg;
 	}
 
+	FileAppenderPtr FileAppender::Create()
+	{
+		return FileAppenderPtr(new FileAppender());
+	}
+
 	// QueuedAppender
 	QueuedFileAppender::QueuedFileAppender()
 		: m_bRun (true)
@@ -144,6 +154,11 @@ namespace EasyLog
 	void QueuedFileAppender::Write(const std::string& msg)
 	{
 		m_Queue.PushMsg(msg);
+	}
+
+	QueuedFileAppenderPtr QueuedFileAppender::Create()
+	{
+		return QueuedFileAppenderPtr(new QueuedFileAppender());
 	}
 
 	// queue

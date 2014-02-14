@@ -78,12 +78,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\EasyLog.cpp" />
-    <ClCompile Include="..\src\TestEasyLog.cpp" />
+    <ClCompile Include="..\src\CppLog.cpp" />
+    <ClCompile Include="..\src\TestCppLog.cpp" />
     <ClCompile Include="..\src\zip.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\EasyLog.h" />
+    <ClInclude Include="..\src\CppLog.h" />
     <ClInclude Include="..\src\zip.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

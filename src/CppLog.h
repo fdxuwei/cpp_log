@@ -1,5 +1,5 @@
-#ifndef __EASY_LOG_H__
-#define __EASY_LOG_H__
+#ifndef __CPP_LOG_H__
+#define __CPP_LOG_H__
 
 #include <iostream>
 #include <fstream>
@@ -11,15 +11,19 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
  
-namespace EasyLog
+namespace CppLog
 {
 	class Appender;
+	class ConsoleAppender;
+	class FileAppender;
+	class QueuedFileAppender;
 	class FileManager;
 
 	// data types
 	typedef boost::shared_ptr<FileManager> FileManagerPtr; 
-// 	typedef boost::shared_ptr<FileAppender> FileAppenderPtr;
-// 	typedef boost::shared_ptr<QueuedFileAppender> QueuedFileAppenderPtr;
+	typedef boost::shared_ptr<ConsoleAppender> ConsoleAppenderPtr;
+ 	typedef boost::shared_ptr<FileAppender> FileAppenderPtr;
+ 	typedef boost::shared_ptr<QueuedFileAppender> QueuedFileAppenderPtr;
 	typedef boost::shared_ptr<Appender> AppenderPtr;
 	typedef std::vector<AppenderPtr> AppenderList;
 	typedef boost::mutex LogMutex;
@@ -100,10 +104,11 @@ namespace EasyLog
 	class FileAppender : public Appender, public FileManager
 	{
 	public:
-		FileAppender();
+		static FileAppenderPtr Create();
 		~FileAppender();
 		virtual void Write(const std::string& msg);
 	protected:
+		FileAppender();
 		void Open();
 		void Close();
 		void WriteWithoutFlush(const std::string& msg);
@@ -114,8 +119,10 @@ namespace EasyLog
 	class ConsoleAppender : public Appender
 	{
 	public:
-		ConsoleAppender();
+		static ConsoleAppenderPtr Create();
 		virtual void Write(const std::string& msg);
+	protected:
+		ConsoleAppender();
 	};
 
 	// queue, thread safe
@@ -135,9 +142,11 @@ namespace EasyLog
 	class QueuedFileAppender : public FileAppender
 	{
 	public:
-		QueuedFileAppender();
+		static QueuedFileAppenderPtr Create();
 		~QueuedFileAppender();
 		virtual void Write(const std::string& msg);
+	protected:
+		QueuedFileAppender();
 	private:
 		SafeQueue m_Queue;
 		bool m_bRun;
@@ -157,12 +166,12 @@ namespace EasyLog
 
 #define LOG_CMD(log,event,level) \
 	{\
-		boost::lock_guard<EasyLog::LogMutex> lock(log.GetMutex());\
+		boost::lock_guard<CppLog::LogMutex> lock(log.GetMutex());\
 		if(log.GetLogLevel() >= level)\
-			for(EasyLog::AppenderList::iterator it = log.GetAppenderList().begin(); it != log.GetAppenderList().end(); ++it)\
+			for(CppLog::AppenderList::iterator it = log.GetAppenderList().begin(); it != log.GetAppenderList().end(); ++it)\
 			{\
 				std::stringstream ssTemp;\
-				ssTemp << EasyLog::GetLogTime() << " - " << EasyLog::c_LogLevelTag[level] << " - " << event <<\
+				ssTemp << CppLog::GetLogTime() << " - " << CppLog::c_LogLevelTag[level] << " - " << event <<\
 					" [ " <<  __FILE__ << " : " << __LINE__ << " ]" << "\n";\
 				(*it)->Write(ssTemp.str());\
 			}\
@@ -170,10 +179,10 @@ namespace EasyLog
 
 // log macros, it is recommended that you use these macors to write a log message in your code instead of the member functions 
 // event is a stream expression which uses the "<<" operator to link all type of variables £¬for example: LOG_FATAL(log, "Welcome to log," << date << "\n")
-#define LOG_FATAL(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_FATAL) 
-#define LOG_ERROR(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_ERROR)
-#define LOG_WARN(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_WARN)
-#define LOG_INFO(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_INFO)
-#define LOG_DEBUG(event) LOG_CMD(EasyLog::Log::Instance(),event,EasyLog::LOG_LEVEL_DEBUG)
+#define LOG_FATAL(event) LOG_CMD(CppLog::Log::Instance(),event,CppLog::LOG_LEVEL_FATAL) 
+#define LOG_ERROR(event) LOG_CMD(CppLog::Log::Instance(),event,CppLog::LOG_LEVEL_ERROR)
+#define LOG_WARN(event) LOG_CMD(CppLog::Log::Instance(),event,CppLog::LOG_LEVEL_WARN)
+#define LOG_INFO(event) LOG_CMD(CppLog::Log::Instance(),event,CppLog::LOG_LEVEL_INFO)
+#define LOG_DEBUG(event) LOG_CMD(CppLog::Log::Instance(),event,CppLog::LOG_LEVEL_DEBUG)
 
 #endif
